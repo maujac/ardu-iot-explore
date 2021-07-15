@@ -20,8 +20,9 @@ long sdTries = 0;
 
 // file object
 File dataFile;
-String fileName = "log-";
+String fileNamePrefix = "log-";
 int fileNameEnumerator = 0;
+String fileName = fileNamePrefix + fileNameEnumerator + ".csv";
 
 void setup() {
 
@@ -50,18 +51,23 @@ void setup() {
     }
   }
 
-  if(sdEnable){
-    initSdFile();
-  }
+  if(sdEnable) initSdFile();
 
-  // Serial.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");  // if pressure sensor broken
   Serial.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");
   carrier.display.setTextColor(ST77XX_WHITE); //white text  
 }
 
 void loop() {
+  carrier.Buttons.update();
+  if(carrier.Button1.getTouch()){
+    takeMeasurement();
+  }
+  delay(100);
+}
+
+void takeMeasurement(){
   if(sdEnable){
-    dataFile = SD.open(fileName + fileNameEnumerator + ".csv", FILE_WRITE);
+    dataFile = SD.open(fileName, FILE_WRITE);
     delay(100);
   }
 
@@ -79,6 +85,7 @@ void loop() {
     delay(10);
   }
   carrier.IMUmodule.readAcceleration(Ax, Ay, Az);
+  
   while(!carrier.IMUmodule.gyroscopeAvailable()){
     delay(10);
   }
@@ -98,6 +105,7 @@ void loop() {
   printComma(Gy);
   printComma(Gz);
   Serial.println("");
+
   if(sdEnable){
     dataFile.println("");
     dataFile.close();
@@ -111,8 +119,6 @@ void loop() {
   carrier.display.setTextSize(2);
   carrier.display.print("Measures taken");
  
-  // wait 1 second to print again
-  delay(1000);
 }
 
 void printComma(String text){
@@ -134,16 +140,16 @@ void printComma(int value){
 
 void initSdFile(){
 
-  while(SD.exists(fileName + fileNameEnumerator + ".csv")){
-    Serial.println("File " + fileName + fileNameEnumerator + " already exists.");
-    Serial.println("Increasing file name enumerator.");
+  while(SD.exists(fileName)){
+    Serial.println("File " + fileName + " already exists.");
     fileNameEnumerator++;
+
+    fileName = fileNamePrefix + fileNameEnumerator + ".csv";
   }
 
-  dataFile = SD.open(fileName + fileNameEnumerator + ".csv", FILE_WRITE);
-  Serial.println("SD file initialized to " + fileName + fileNameEnumerator + ".csv");
-  
+  dataFile = SD.open(fileName, FILE_WRITE);
+  Serial.println("SD file initialized to " + fileName);
+
   dataFile.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");  // if pressure sensor broken
-  // dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
   dataFile.close();
 }
