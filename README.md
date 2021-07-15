@@ -2,7 +2,9 @@
 
 My sketches made for the [Arduino IoT Explore Kit](https://store.arduino.cc/usa/explore-iot-kit).
 
-![image-20210715155304369](/home/mau/.config/Typora/typora-user-images/image-20210715155304369.png)
+![image-20210715155304369](README.assets//exploreIoTkit.png)
+
+
 
 ## Micro-controllers used
 
