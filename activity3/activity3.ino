@@ -52,6 +52,7 @@ void setup() {
     dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
     dataFile.close();
   }
+  carrier.display.setTextColor(ST77XX_WHITE); //white text  
 }
 
 void loop() {
@@ -95,6 +96,16 @@ void loop() {
     dataFile.println("");
     dataFile.close();
   }
+
+  carrier.display.fillScreen(ST77XX_BLUE);
+  carrier.display.setCursor(100, 70);
+  carrier.display.setTextSize(4); //medium sized text
+  carrier.display.print(counter);
+  carrier.display.setCursor(20, 110);
+  carrier.display.setTextSize(2);
+  carrier.display.print("Measures taken");
+ 
+  // wait 1 second to print again
   delay(1000);
 }
 
