@@ -3,7 +3,7 @@ MKRIoTCarrier carrier;
 
 float temperature = 0;
 float humidity = 0;
-// float pressure = 0; // pressure sensor broken
+float pressure = 0; // pressure sensor broken
 int light = 0;
 int r,g,b;
 // gyroscope
@@ -24,11 +24,13 @@ File dataFile;
 void setup() {
 
   Serial.begin(9600);
-  Serial.println("Initializing carrier");
   while(!Serial){
     delay(100);
   }
+
+  Serial.println("Initializing carrier");
   CARRIER_CASE = false;
+
   if(!carrier.begin()){  //It will see any sensor failure
    Serial.println("Failure on init");
    while(1);
@@ -48,10 +50,12 @@ void setup() {
   if(sdEnable){
     dataFile = SD.open("log-0000.csv", FILE_WRITE);
     Serial.println("SD file initialized");
-    // dataFile.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");  // pressure sensor broken
-    dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
+    dataFile.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");  // pressure sensor broken
+    // dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
     dataFile.close();
   }
+  // Serial.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
+  Serial.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");
   carrier.display.setTextColor(ST77XX_WHITE); //white text  
 }
 
@@ -63,6 +67,7 @@ void loop() {
 
   temperature = carrier.Env.readTemperature();
   humidity = carrier.Env.readHumidity();
+  pressure = carrier.Pressure.readPressure();
 
   while(!carrier.Light.colorAvailable()){
     delay(10);
@@ -84,6 +89,7 @@ void loop() {
   // Write data to serial and SD card
   printComma(temperature);
   printComma(humidity);
+  printComma(pressure);
   printComma(light);
   printComma(Ax);
   printComma(Ay);
