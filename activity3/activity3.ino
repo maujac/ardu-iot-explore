@@ -20,6 +20,8 @@ long sdTries = 0;
 
 // file object
 File dataFile;
+String fileName = "log-";
+int fileNameEnumerator = 0;
 
 void setup() {
 
@@ -41,27 +43,25 @@ void setup() {
     Serial.println("Failed to initialize SD card!");
     delay(10);
     sdTries++;
-    if(sdTries > 5){
+    if(sdTries > 3){
       sdEnable = false;
       Serial.println("Bypassing SD card. Writting to serial only.");
       break;
     }
   }
+
   if(sdEnable){
-    dataFile = SD.open("log-0000.csv", FILE_WRITE);
-    Serial.println("SD file initialized");
-    dataFile.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");  // pressure sensor broken
-    // dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
-    dataFile.close();
+    initSdFile();
   }
-  // Serial.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
+
+  // Serial.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");  // if pressure sensor broken
   Serial.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");
   carrier.display.setTextColor(ST77XX_WHITE); //white text  
 }
 
 void loop() {
   if(sdEnable){
-    dataFile = SD.open("log-0000.csv", FILE_WRITE);
+    dataFile = SD.open(fileName + fileNameEnumerator + ".csv", FILE_WRITE);
     delay(100);
   }
 
@@ -130,4 +130,20 @@ void printComma(float value){
 
 void printComma(int value){
   printComma(String(value));
+}
+
+void initSdFile(){
+
+  while(SD.exists(fileName + fileNameEnumerator + ".csv")){
+    Serial.println("File " + fileName + fileNameEnumerator + " already exists.");
+    Serial.println("Increasing file name enumerator.");
+    fileNameEnumerator++;
+  }
+
+  dataFile = SD.open(fileName + fileNameEnumerator + ".csv", FILE_WRITE);
+  Serial.println("SD file initialized to " + fileName + fileNameEnumerator + ".csv");
+  
+  dataFile.println("temperature, humidity, pressure, light, Ax, Ay, Az, Gx, Gy, Gz");  // if pressure sensor broken
+  // dataFile.println("temperature, humidity, light, Ax, Ay, Az, Gx, Gy, Gz");
+  dataFile.close();
 }
